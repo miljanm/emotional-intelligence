@@ -1,3 +1,8 @@
+
+LENGTH
+24m21s
+
+
 .csv files in this archive are in the following format:
 The first row is the initial time of the session expressed as unix timestamp in UTC.
 The second row is the sample rate expressed in Hz.
@@ -25,3 +30,5 @@ tags.csv
 Event mark times.
 Each row corresponds to a physical button press on the device; the same time as the status LED is first illuminated.
 The time is expressed as unix timestamp in UTC and it is synchronized with initial time of the session indicated in the related data files from the corrisponding session.
+
+
