@@ -1,3 +1,8 @@
+
+LENGTH
+13m30s
+
+
 .csv files in this archive are in the following format:
 The first row is the initial time of the session expressed as unix timestamp in UTC.
 The second row is the sample rate expressed in Hz.
