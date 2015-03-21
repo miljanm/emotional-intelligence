@@ -4,6 +4,7 @@
 ###########
 import csv
 import numpy as np
+import math
 
 
 #################
@@ -21,13 +22,14 @@ class bracelet_measurement_session:
 
         self.slot_time_span = slot_time
         self.exp_samplepersec = expected_frequency
+        self.exp_sampleperslot = self.slot_time_span*self.exp_samplepersec
+
+        self.num_features = 10
 
         self.ACC_hertz = 32.0
         self.ACCsamples_slot = self.ACC_hertz*self.slot_time_span
-
         self.BVP_hertz = 64.0
         self.BVPsamples_slot = self.BVP_hertz*self.slot_time_span
-
         self.EDA_hertz = 4.0
         self.EDAsamples_slot = self.EDA_hertz*self.slot_time_span
 
@@ -46,6 +48,23 @@ class bracelet_measurement_session:
 
     # subtract day average for patient
     def normalize_signals(self):
+        pass
+
+
+    # compute features
+    def compute_features(self):
+
+        num_slots = int(math.floor(float(len(self.raw_EDA))/self.exp_sampleperslot))
+        features = np.zeros((num_slots, self.num_features))
+
+        for i in xrange(num_slots):
+
+            EDA_slot = self.raw_EDA[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
+            BVP_slot = self.raw_BVP[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
+            ACCx_slot = self.raw_ACCx[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
+            ACCy_slot = self.raw_ACCy[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
+            ACCz_slot = self.raw_ACCz[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
+
         pass
 
 
@@ -76,17 +95,18 @@ class bracelet_measurement_session:
 
 
     # compute slot mean approx absolute value of second order gradient
-    def approx_secondorder_feature(self):
-        pass
+    def approx_secondorder_feature(self, slot):
 
-
-    # compute mean amplitude
-    def amplitude_feature(self):
-        pass
+        numpy_slot = np.array(slot)
+        diff_vect = np.diff(numpy_slot)
+        second_diff = np.diff(diff_vect)
+        abs_second_diff = np.absolute(second_diff)
+        avg_second_order = np.mean(abs_second_diff)
+        return avg_second_order
 
 
     # compute mean frequency
-    def frequency_feature(self):
+    def frequency_feature(self, slot):
         pass
 
 
@@ -204,7 +224,7 @@ class bracelet_measurement_session:
 # Main #
 ########
 
-data = bracelet_measurement_session("Gaziz", "calm", 30.0, 4.0, debug = True)
+data = bracelet_measurement_session("Gaziz", "calm", 30.0, 4.0, debug = False)
 data.read_EDA()
 data.read_BVP()
 data.read_ACC()
