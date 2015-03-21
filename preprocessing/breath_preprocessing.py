@@ -5,9 +5,9 @@ import csv
 import pickle
 from collections import defaultdict
 import numpy as np
-import scipy.ndimage.filters as filters
-import scipy.ndimage.morphology as morphology
+import matplotlib.pylab as pl
 from pprint import pprint
+import preprocessing_utils
 
 
 def process_breath_data(filename, is_pickled=False):
@@ -59,59 +59,73 @@ def process_breath_data(filename, is_pickled=False):
     return breath_data_np
 
 
-def detect_local_minima(arr):
-    # http://stackoverflow.com/questions/3684484/peak-detection-in-a-2d-array/3689710#3689710
-    """
-    Takes an array and detects the troughs using the local maximum filter.
-    Returns a boolean mask of the troughs (i.e. 1 when
-    the pixel's value is the neighborhood maximum, 0 otherwise)
-    """
-    # define an connected neighborhood
-    # http://www.scipy.org/doc/api_docs/SciPy.ndimage.morphology.html#generate_binary_structure
-    neighborhood = morphology.generate_binary_structure(len(arr.shape),2)
-    # apply the local minimum filter; all locations of minimum value
-    # in their neighborhood are set to 1
-    # http://www.scipy.org/doc/api_docs/SciPy.ndimage.filters.html#minimum_filter
-    local_min = (filters.minimum_filter(arr, footprint=neighborhood)==arr)
-    # local_min is a mask that contains the peaks we are
-    # looking for, but also the background.
-    # In order to isolate the peaks we must remove the background from the mask.
-    #
-    # we create the mask of the background
-    background = (arr==0)
-    #
-    # a little technicality: we must erode the background in order to
-    # successfully subtract it from local_min, otherwise a line will
-    # appear along the background border (artifact of the local minimum filter)
-    # http://www.scipy.org/doc/api_docs/SciPy.ndimage.morphology.html#binary_erosion
-    eroded_background = morphology.binary_erosion(
-        background, structure=neighborhood, border_value=1)
-    #
-    # we obtain the final mask, containing only peaks,
-    # by removing the background from the local_min mask
-    detected_minima = local_min - eroded_background
-    return np.where(detected_minima)
+def _slice_local_maximums(data_slice):
+
+    pl.plot(data_slice)
+    smoothed_data = preprocessing_utils.smooth_signal(data_slice, window_len=15, window='bartlett')
+    pl.plot(smoothed_data[7:-7])
+    pl.show()
+    local_mins = preprocessing_utils.detect_local_minima(smoothed_data)
+    pprint(local_mins)
 
 
-def feature_difference_of_maxes(data_slice):
-    local_minima = detect_local_minima(data_slice)
-    pprint(local_minima)
-    pprint( data_slice[local_minima])
-    pprint(data_slice)
+
+def _slice_first_abs_difference_signals(data_slice):
+    return np.sum(np.abs(data_slice[1:] - data_slice[:-1])) / (len(data_slice) - 1)
 
 
-def calculate_window_features(data, window_size=30):
-    data = np.reshape(data,(data.shape[0] * 4, 25))
+def _slice_second_abs_difference_signals(data_slice):
+    return np.sum(np.abs(data_slice[2:] - data_slice[:-2])) / (len(data_slice) - 2)
+
+
+def _slice_amplitude(data_slice):
+    return np.std(data_slice)
+
+
+def _slice_mean(data_slice):
+    return np.mean(data_slice)
+
+
+def calculate_daily_user_mean(username, is_pickled=False):
+    calm_data = process_breath_data('_Respiration_Data_Calm_' + username)
+    excited_data = process_breath_data('_Respiration_Data_Excited_' + username)
+    mean = (np.average(calm_data) + np.average(excited_data)) / 2.0
+    if is_pickled:
+        pickle.dump(mean, open('../data/pickles/_Respiration_Data_Average_' + username, 'wb'))
+    return mean
+
+
+def calculate_window_features(data, username, features, window_size=30):
+    data = np.reshape(data, (data.shape[0] * 4, 25))
     # calculate average measurement for each second
     data = np.average(data, 1)
-    for i in range(0, 120, 120):
+    # subtract the mean of the day to account for variations in the tightness of the breath sensor
+    data = np.subtract(data, calculate_daily_user_mean(username))
+    all_features = []
+    # go over data ranges, in window_size range * 4 Hz steps
+    for i in range(0, len(data), window_size*4):
         try:
-            data_slice = data[i:i+120]
+            data_slice = data[i:i+window_size*4]
         except:
             data_slice = data[i:]
-        feature_difference_of_maxes(data_slice)
+
+        feature_vector = []
+        # call the feature functions given in the list of feature functions to be used
+        for feature in features:
+            feature_vector.append(feature(data_slice))
+        all_features.append(feature_vector)
+
+    return np.array(all_features)
 
 
 if __name__ == '__main__':
-    processed_data = process_breath_data('_Respiration_Data_Calm_Gaziz')
-    calculate_window_features(processed_data)
+    username = 'Gaziz'
+    features = [
+        _slice_local_maximums,
+        _slice_first_abs_difference_signals,
+        _slice_second_abs_difference_signals,
+        _slice_amplitude,
+        _slice_mean,
+    ]
+    processed_data = process_breath_data('_Respiration_Data_Calm_' + username)
+    calculate_window_features(processed_data, username, features)
