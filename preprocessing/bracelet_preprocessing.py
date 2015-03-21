@@ -5,43 +5,15 @@
 import csv
 
 
-#############
-# Time_slot #
-#############
-class time_slot:
-
-    # Constructor
-    def __init__(self):
-
-        self.raw_EDA = []
-        self.raw_BVP = []
-        self.raw_ACCx = []
-        self.raw_ACCy = []
-        self.raw_ACCz = []
-
-        self.mean_EDA = 0.0
-        self.variance_EDA = 0.0
-
-        self.mean_BVP = 0.0
-        self.variance_BVP = 0.0
-
-        self.mean_ACCx = 0.0
-        self.variance_ACCx = 0.0
-
-        self.mean_ACCy = 0.0
-        self.variance_ACCy = 0.0
-
-        self.mean_ACCz = 0.0
-        self.variance_ACCz = 0.0
-
-
 #################
 # Bracelet data #
 #################
 class bracelet_measurement_session:
 
     # Constructor, initialize attributes
-    def __init__(self, my_patient, my_emotion, slot_time, expected_frequency):
+    def __init__(self, my_patient, my_emotion, slot_time, expected_frequency, debug = False):
+
+        self.debug_mode = debug
 
         self.patient = my_patient
         self.emotion = my_emotion
@@ -63,6 +35,12 @@ class bracelet_measurement_session:
         self.raw_ACCx = []
         self.raw_ACCy = []
         self.raw_ACCz = []
+
+        self.features_EDA = []
+        self.features_BVP = []
+        self.features_ACCx = []
+        self.features_ACCy = []
+        self.features_ACCz = []
 
 
     # EDA: Read data and interpolate/average to get the required sampling frequency
@@ -90,13 +68,12 @@ class bracelet_measurement_session:
                     slot_accumulator += float(row[0])
 
                 # average samples in order to have one aggregated measurement per each 0.25s time unit
-                if row_id>20:
+                if self.debug_mode and row_id>20:
                     break
-                else:
-                    print row
 
         # print
-        print self.raw_EDA, len(self.raw_EDA)
+        if self.debug_mode:
+            print self.raw_EDA, len(self.raw_EDA)
 
 
     # BVP: Read data and interpolate/average to get the required sampling frequency
@@ -115,7 +92,7 @@ class bracelet_measurement_session:
                 if row_id == 0 or row_id == 1:
                     continue
 
-                # store all values in time unit
+                # average samples in order to have one aggregated measurement per each 0.25s time unit
                 if (row_id-2)%round((self.BVP_hertz/self.exp_samplepersec))==0:
                     unit_avg = slot_accumulator/round((self.BVP_hertz/self.exp_samplepersec))
                     self.raw_BVP.append(unit_avg)
@@ -123,14 +100,13 @@ class bracelet_measurement_session:
                 else:
                     slot_accumulator += float(row[0])
 
-                # average samples in order to have one aggregated measurement per each 0.25s time unit
-                if row_id>100:
-                    break
-                else:
-                    print row
+                # early break and prints
+                if self.debug_mode and row_id>100:
+                        break
 
         # print
-        print self.raw_BVP, len(self.raw_BVP)
+        if self.debug_mode:
+            print self.raw_BVP, len(self.raw_BVP)
 
 
     # ACC: Read data and interpolate/average to get the required sampling frequency
@@ -150,7 +126,7 @@ class bracelet_measurement_session:
                 if row_id == 0 or row_id == 1:
                     continue
 
-                # store all values in time unit
+                # average samples in order to have one aggregated measurement per each time unit
                 if (row_id-2)%round((self.ACC_hertz/self.exp_samplepersec))==0:
                     unit_avg = slot_accumulator_x/round((self.ACC_hertz/self.exp_samplepersec))
                     self.raw_ACCx.append(unit_avg)
@@ -166,23 +142,22 @@ class bracelet_measurement_session:
                     slot_accumulator_y += float(row[0].split(',')[1])
                     slot_accumulator_z += float(row[0].split(',')[2])
 
-                # average samples in order to have one aggregated measurement per each 0.25s time unit
-                if row_id>50:
-                    break
-                else:
-                    print row
+                # early break and prints
+                if self.debug_mode and row_id>50:
+                        break
 
         # print
-        print self.raw_ACCx, len(self.raw_BVP)
-        print self.raw_ACCy, len(self.raw_BVP)
-        print self.raw_ACCz, len(self.raw_BVP)
+        if self.debug_mode:
+            print self.raw_ACCx, len(self.raw_BVP)
+            print self.raw_ACCy, len(self.raw_BVP)
+            print self.raw_ACCz, len(self.raw_BVP)
 
 
 ########
 # Main #
 ########
 
-data = bracelet_measurement_session("Gaziz", "calm", 30.0, 4.0)
+data = bracelet_measurement_session("Gaziz", "calm", 30.0, 4.0, debug = True)
 data.read_EDA()
 data.read_BVP()
 data.read_ACC()
