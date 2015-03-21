@@ -3,6 +3,7 @@
 # Imports #
 ###########
 import csv
+import numpy as np
 
 
 #################
@@ -41,6 +42,52 @@ class bracelet_measurement_session:
         self.features_ACCx = []
         self.features_ACCy = []
         self.features_ACCz = []
+
+
+    # subtract day average for patient
+    def normalize_signals(self):
+        pass
+
+
+    # compute slot mean
+    def mean_feature(self, slot):
+
+        my_sum = sum(slot)
+        my_avg = float(my_sum)/len(slot)
+        return my_avg
+
+
+    # compute slot variance
+    def stddev_feature(self, slot, mean):
+
+        numpy_slot = np.array(slot)
+        std_dev = np.std(numpy_slot)
+        return std_dev
+
+
+    # compute slot mean approx absolute value of gradient
+    def approx_gradient_feature(self, slot):
+
+        numpy_slot = np.array(slot)
+        diff_vect = np.diff(numpy_slot)
+        abs_diff_vect = np.absolute(diff_vect)
+        avg_grad = np.mean(abs_diff_vect)
+        return avg_grad
+
+
+    # compute slot mean approx absolute value of second order gradient
+    def approx_secondorder_feature(self):
+        pass
+
+
+    # compute mean amplitude
+    def amplitude_feature(self):
+        pass
+
+
+    # compute mean frequency
+    def frequency_feature(self):
+        pass
 
 
     # EDA: Read data and interpolate/average to get the required sampling frequency
