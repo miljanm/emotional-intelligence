@@ -7,108 +7,101 @@ import numpy as np
 import math
 
 
-#################
-# Bracelet data #
-#################
+################################
+# Bracelet measurement session #
+################################
 class bracelet_measurement_session:
 
     # Constructor, initialize attributes
-    def __init__(self, my_patient, my_emotion, slot_time, expected_frequency, debug = False):
+    def __init__(self, features, my_patient, my_emotion, slot_time, sampling_frequency, expected_frequency, debug = False):
 
         self.debug_mode = debug
-
         self.patient = my_patient
         self.emotion = my_emotion
 
         self.slot_time_span = slot_time
-        self.exp_samplepersec = expected_frequency
-        self.exp_sampleperslot = self.slot_time_span*self.exp_samplepersec
+        self.exp_sample_per_sec = expected_frequency
+        self.exp_sample_per_slot = self.slot_time_span*self.exp_sample_per_sec
 
-        self.num_features = 10
+        self.sampling = {'ACC':sampling_frequency[0], 'EDA':sampling_frequency[1], 'BVP':sampling_frequency[2]}
+        self.data = {'ACCx': [], 'ACCy': [], 'ACCz': [], 'EDA': [], 'BVP': []}
 
-        self.ACC_hertz = 32.0
-        self.ACCsamples_slot = self.ACC_hertz*self.slot_time_span
-        self.BVP_hertz = 64.0
-        self.BVPsamples_slot = self.BVP_hertz*self.slot_time_span
-        self.EDA_hertz = 4.0
-        self.EDAsamples_slot = self.EDA_hertz*self.slot_time_span
+        self.num_feat = sum([len(x) for x in features.values()])
+        self.engineered_data = []
 
-        self.raw_EDA = []
-        self.raw_BVP = []
-        self.raw_ACCx = []
-        self.raw_ACCy = []
-        self.raw_ACCz = []
-
-        self.features_EDA = []
-        self.features_BVP = []
-        self.features_ACCx = []
-        self.features_ACCy = []
-        self.features_ACCz = []
-
-
-    # subtract day average for patient
+    # TODO subtract day average for patient
     def normalize_signals(self):
         pass
 
-
-    # compute features
-    def compute_features(self):
-
-        num_slots = int(math.floor(float(len(self.raw_EDA))/self.exp_sampleperslot))
-        features = np.zeros((num_slots, self.num_features))
-
-        for i in xrange(num_slots):
-
-            EDA_slot = self.raw_EDA[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
-            BVP_slot = self.raw_BVP[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
-            ACCx_slot = self.raw_ACCx[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
-            ACCy_slot = self.raw_ACCy[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
-            ACCz_slot = self.raw_ACCz[int(i*self.exp_sampleperslot) : int((i+1)*self.exp_sampleperslot)]
-
-        pass
-
-
     # compute slot mean
     def mean_feature(self, slot):
-
-        my_sum = sum(slot)
-        my_avg = float(my_sum)/len(slot)
-        return my_avg
-
+        return float(sum(slot))/len(slot)
 
     # compute slot variance
     def stddev_feature(self, slot, mean):
-
-        numpy_slot = np.array(slot)
-        std_dev = np.std(numpy_slot)
-        return std_dev
-
+        return np.std(np.array(slot))
 
     # compute slot mean approx absolute value of gradient
     def approx_gradient_feature(self, slot):
-
-        numpy_slot = np.array(slot)
-        diff_vect = np.diff(numpy_slot)
-        abs_diff_vect = np.absolute(diff_vect)
-        avg_grad = np.mean(abs_diff_vect)
-        return avg_grad
-
+        abs_diff_vect = np.absolute(np.diff(np.array(slot)))
+        return np.mean(abs_diff_vect)
 
     # compute slot mean approx absolute value of second order gradient
     def approx_secondorder_feature(self, slot):
+        abs_second_diff = np.absolute(np.diff(np.diff(np.array(slot))))
+        return np.mean(abs_second_diff)
 
-        numpy_slot = np.array(slot)
-        diff_vect = np.diff(numpy_slot)
-        second_diff = np.diff(diff_vect)
-        abs_second_diff = np.absolute(second_diff)
-        avg_second_order = np.mean(abs_second_diff)
-        return avg_second_order
-
-
-    # compute mean frequency
+    # TODO compute mean frequency
     def frequency_feature(self, slot):
         pass
 
+    # compute features
+    def compute_features(self):
+        # compute number of slots
+        num_slots = int(math.floor(float(len(self.data['EDA']))/self.exp_sample_per_slot))
+        signals = ['EDA', 'BVP', 'ACCx', 'ACCy', 'ACCz']
+        # iterate over 30 second slots
+        for i in xrange(num_slots):
+            # TODO: compute slot fetures
+            slots = map(lambda s: self.data[s][int(i*self.exp_sample_per_slot) : int((i+1)*self.exp_sample_per_slot)], signals)
+
+    # ACC: Read data and interpolate/average to get the required sampling frequency
+    def read_ACC(self):
+
+        # initialize
+        axes = ['x', 'y', 'z']
+        raw_data = {'x':self.data['ACCx'], 'y':self.data['ACCy'], 'z':self.data['ACCz']}
+        slot_accumulator = {'x':0.0, 'y':0.0, 'z':0.0}
+
+        with open("../data/bracelet/%s_%s/ACC.csv"%(self.patient, self.emotion), "rb") as f1:
+            file_reader = csv.reader(f1, delimiter=' ')
+            for row_id, row in enumerate(file_reader):
+
+                # skip first 2 lines
+                if row_id == 0 or row_id == 1:
+                    continue
+                # average samples in order to have one aggregated measurement per each time unit
+                if (row_id-2)%round((self.sampling['ACC']/self.exp_sample_per_sec))==0:
+                    i=0
+                    for axis in axes:
+                        unit_avg = slot_accumulator[axis]/round((self.sampling['ACC']/self.exp_sample_per_sec))
+                        raw_data[axis].append(unit_avg)
+                        slot_accumulator[axis] = float(row[0].split(',')[i])
+                        i += 1
+                else:
+                    i=0
+                    for axis in axes:
+                        slot_accumulator[axis] += float(row[0].split(',')[i])
+                        i += 1
+                # early break and prints
+                if self.debug_mode and row_id>50:
+                        break
+
+        # print
+        if self.debug_mode:
+            print self.data['ACCx'], len(self.data['ACCx'])
+            print self.data['ACCy'], len(self.data['ACCy'])
+            print self.data['ACCz'], len(self.data['ACCz'])
 
     # EDA: Read data and interpolate/average to get the required sampling frequency
     def read_EDA(self):
@@ -127,9 +120,9 @@ class bracelet_measurement_session:
                     continue
 
                 # store all values in time unit
-                if (row_id-2)%round((self.EDA_hertz/self.exp_samplepersec))==0:
-                    unit_avg = slot_accumulator/round((self.EDA_hertz/self.exp_samplepersec))
-                    self.raw_EDA.append(unit_avg)
+                if (row_id-2)%round((self.sampling['EDA']/self.exp_sample_per_sec))==0:
+                    unit_avg = slot_accumulator/round((self.sampling['EDA']/self.exp_sample_per_sec))
+                    self.data['EDA'].append(unit_avg)
                     slot_accumulator = float(row[0])
                 else:
                     slot_accumulator += float(row[0])
@@ -140,8 +133,7 @@ class bracelet_measurement_session:
 
         # print
         if self.debug_mode:
-            print self.raw_EDA, len(self.raw_EDA)
-
+            print self.data['EDA'], len(self.data['EDA'])
 
     # BVP: Read data and interpolate/average to get the required sampling frequency
     def read_BVP(self):
@@ -160,9 +152,9 @@ class bracelet_measurement_session:
                     continue
 
                 # average samples in order to have one aggregated measurement per each 0.25s time unit
-                if (row_id-2)%round((self.BVP_hertz/self.exp_samplepersec))==0:
-                    unit_avg = slot_accumulator/round((self.BVP_hertz/self.exp_samplepersec))
-                    self.raw_BVP.append(unit_avg)
+                if (row_id-2)%round((self.sampling['BVP']/self.exp_sample_per_sec))==0:
+                    unit_avg = slot_accumulator/round((self.sampling['BVP']/self.exp_sample_per_sec))
+                    self.data['BVP'].append(unit_avg)
                     slot_accumulator = float(row[0])
                 else:
                     slot_accumulator += float(row[0])
@@ -173,58 +165,18 @@ class bracelet_measurement_session:
 
         # print
         if self.debug_mode:
-            print self.raw_BVP, len(self.raw_BVP)
+            print self.data['BVP'], len(self.data['BVP'])
 
 
-    # ACC: Read data and interpolate/average to get the required sampling frequency
-    def read_ACC(self):
+###########
+# Execute #
+###########
 
-        # initialize
-        slot_accumulator_x = 0.0
-        slot_accumulator_y = 0.0
-        slot_accumulator_z = 0.0
+features = {'EDA': ['mean', 'grad'], 'BVP': ['mean', 'std_dev'], 'ACC': ['mean', 'std_dev']}
+session = ["Gaziz", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
 
-        with open("../data/bracelet/%s_%s/ACC.csv"%(self.patient, self.emotion), "rb") as f1:
+data = bracelet_measurement_session(features, *session, debug = True)
 
-            file_reader = csv.reader(f1, delimiter=' ')
-            for row_id, row in enumerate(file_reader):
-
-                # skip first 2 lines
-                if row_id == 0 or row_id == 1:
-                    continue
-
-                # average samples in order to have one aggregated measurement per each time unit
-                if (row_id-2)%round((self.ACC_hertz/self.exp_samplepersec))==0:
-                    unit_avg = slot_accumulator_x/round((self.ACC_hertz/self.exp_samplepersec))
-                    self.raw_ACCx.append(unit_avg)
-                    slot_accumulator_x = float(row[0].split(',')[0])
-                    unit_avg = slot_accumulator_y/round((self.ACC_hertz/self.exp_samplepersec))
-                    self.raw_ACCy.append(unit_avg)
-                    slot_accumulator_y = float(row[0].split(',')[1])
-                    unit_avg = slot_accumulator_z/round((self.ACC_hertz/self.exp_samplepersec))
-                    self.raw_ACCz.append(unit_avg)
-                    slot_accumulator_z = float(row[0].split(',')[2])
-                else:
-                    slot_accumulator_x += float(row[0].split(',')[0])
-                    slot_accumulator_y += float(row[0].split(',')[1])
-                    slot_accumulator_z += float(row[0].split(',')[2])
-
-                # early break and prints
-                if self.debug_mode and row_id>50:
-                        break
-
-        # print
-        if self.debug_mode:
-            print self.raw_ACCx, len(self.raw_BVP)
-            print self.raw_ACCy, len(self.raw_BVP)
-            print self.raw_ACCz, len(self.raw_BVP)
-
-
-########
-# Main #
-########
-
-data = bracelet_measurement_session("Gaziz", "calm", 30.0, 4.0, debug = False)
 data.read_EDA()
 data.read_BVP()
 data.read_ACC()
