@@ -207,6 +207,7 @@ Main function:
 - declare features to be computed
 - read data and divide in slots
 - process slots and derive feature
+- train logistic regression
 '''
 if __name__=='__main__':
 
