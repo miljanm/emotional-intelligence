@@ -13,7 +13,7 @@ import math
 class bracelet_measurement_session:
 
     # Constructor, initialize attributes
-    def __init__(self, features, my_patient, my_emotion, slot_time, sampling_frequency, expected_frequency, debug = False):
+    def __init__(self, features, my_patient, my_emotion, slot_time, sampling_frequency, expected_frequency, debug=False):
 
         self.debug_mode = debug
         self.patient = my_patient
