@@ -3,7 +3,10 @@
 import csv
 import numpy as np
 import math
+from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
+from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 
 """
@@ -236,12 +239,54 @@ if __name__=='__main__':
         sessions.append(session)
         print session.engineered_data.shape
 
-    data_set = np.concatenate((sessions[0].engineered_data,sessions[1].engineered_data,
-                               sessions[2].engineered_data, sessions[3].engineered_data), axis=0)
-
+    data_set = np.concatenate((sessions[0].engineered_data,sessions[1].engineered_data,sessions[2].engineered_data, sessions[3].engineered_data), axis=0)
     X = data_set[:,0:-1]
     np.random.shuffle(X)
-    y = data_set[:,-1].astype('int')
+    y = data_set[:,-1].astype('int')-1
+
+    # Experiment with different classifiers
+    n_folds = 5
+
+    clf = LogisticRegression(dual=False, penalty='l1')
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("LogReg l1 regularized - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = LogisticRegression(dual=False, penalty='l2')
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("LogReg l2 regularized - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = RandomForestClassifier(n_estimators=180,min_samples_split=4)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Random Forest - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = GradientBoostingClassifier(n_estimators=180,min_samples_split=4)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Gradient Boosting - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = svm.SVC(kernel='linear', C=1)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Linear SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = svm.SVC(kernel='poly', degree=2, C=1)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Polynomial (d=2) kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = svm.SVC(kernel='poly', degree=3, C=1)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Polynomial (d=3) kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = svm.SVC(kernel='sigmoid', C=1)
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("Sigmoid kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+
+
+
+
+"""
+    X = data_set[:,0:-1]
+    np.random.shuffle(X)
+    y = data_set[:,-1].astype('int')-1
     print (X.shape)[0]
     train_idx = int(0.7*(X.shape)[0])
     X_train = X[0:train_idx,:]
@@ -259,6 +304,14 @@ if __name__=='__main__':
     pred = m.predict(X_test)
 
     print "\n Error:"
-    print y_test
     pred = abs(pred-1)
     print float(sum(abs(y_test-pred)))/len(y_test)
+
+    m = svm.SVC(kernel='poly')
+    m.fit(X_train, y_train)
+    pred = m.predict(X_test)
+
+    print "\n Error:"
+    pred = abs(pred-1)
+    print float(sum(abs(y_test-pred)))/len(y_test)
+"""
