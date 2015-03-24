@@ -7,6 +7,7 @@ from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 
 """
@@ -255,6 +256,18 @@ if __name__=='__main__':
     scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
     print("LogReg l2 regularized - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
+    clf = KNeighborsClassifier(n_neighbors=3, weights='distance')
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("KNN k=3 - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = KNeighborsClassifier(n_neighbors=5, weights='distance')
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("KNN k=5 - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+    clf = KNeighborsClassifier(n_neighbors=7, weights='distance')
+    scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
+    print("KNN k=7 - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
     clf = RandomForestClassifier(n_estimators=180,min_samples_split=4)
     scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
     print("Random Forest - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
@@ -278,40 +291,3 @@ if __name__=='__main__':
     clf = svm.SVC(kernel='sigmoid', C=1)
     scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
     print("Sigmoid kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
-
-
-
-
-"""
-    X = data_set[:,0:-1]
-    np.random.shuffle(X)
-    y = data_set[:,-1].astype('int')-1
-    print (X.shape)[0]
-    train_idx = int(0.7*(X.shape)[0])
-    X_train = X[0:train_idx,:]
-    X_test = X[train_idx:,:]
-    y_train = y[0:train_idx]
-    y_test = y[train_idx:]
-
-    print X_test.shape
-    print X_train.shape
-    print y_test.shape
-    print y_train.shape
-
-    m = LogisticRegression(dual=False, penalty='l2')
-    m.fit(X_train, y_train)
-    pred = m.predict(X_test)
-
-    print "\n Error:"
-    pred = abs(pred-1)
-    print float(sum(abs(y_test-pred)))/len(y_test)
-
-    m = svm.SVC(kernel='poly')
-    m.fit(X_train, y_train)
-    pred = m.predict(X_test)
-
-    print "\n Error:"
-    pred = abs(pred-1)
-    print float(sum(abs(y_test-pred)))/len(y_test)
-"""
