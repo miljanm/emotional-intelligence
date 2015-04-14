@@ -2,8 +2,6 @@
 import pickle as pk
 import numpy as np
 
-from preprocessing.breath_preprocessing import get_transformed_data
-
 from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
