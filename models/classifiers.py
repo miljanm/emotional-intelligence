@@ -31,7 +31,6 @@ np.random.shuffle(X)
 np.random.set_state(rng_state)
 np.random.shuffle(y)
 
-
 # Experiment with different classifiers
 n_folds = 5
 
