@@ -1,13 +1,12 @@
-__author__ = 'miljan'
-
-
 import csv
 import pickle
 from collections import defaultdict
 import numpy as np
-import matplotlib.pylab as pl
-from pprint import pprint
 import preprocessing_utils
+from scipy.signal import argrelextrema
+from itertools import product
+
+__author__ = 'miljan'
 
 
 def process_breath_data(filename, is_pickled=False):
@@ -59,15 +58,11 @@ def process_breath_data(filename, is_pickled=False):
     return breath_data_np
 
 
-def _slice_local_maximums(data_slice):
-
-    pl.plot(data_slice)
-    smoothed_data = preprocessing_utils.smooth_signal(data_slice, window_len=15, window='bartlett')
-    pl.plot(smoothed_data[7:-7])
-    pl.show()
-    local_mins = preprocessing_utils.detect_local_minima(smoothed_data)
-    pprint(local_mins)
-
+def _slice_full_breaths(data_slice):
+    smoothed_data = preprocessing_utils.smooth_signal(data_slice, window_len=17, window='bartlett')
+    local_mins = argrelextrema(smoothed_data, np.less, order=5)
+    local_maxs = argrelextrema(smoothed_data, np.greater, order=5)
+    return min(len(local_mins[0]), len(local_maxs[0]))
 
 
 def _slice_first_abs_difference_signals(data_slice):
@@ -101,7 +96,7 @@ def calculate_window_features(data, username, features, window_size=30):
     data = np.average(data, 1)
     # subtract the mean of the day to account for variations in the tightness of the breath sensor
     data = np.subtract(data, calculate_daily_user_mean(username))
-    all_features = []
+    feature_matrix = []
     # go over data ranges, in window_size range * 4 Hz steps
     for i in range(0, len(data), window_size*4):
         try:
@@ -113,19 +108,31 @@ def calculate_window_features(data, username, features, window_size=30):
         # call the feature functions given in the list of feature functions to be used
         for feature in features:
             feature_vector.append(feature(data_slice))
-        all_features.append(feature_vector)
+        feature_matrix.append(feature_vector)
 
-    return np.array(all_features)
+    return np.array(feature_matrix)
 
 
-if __name__ == '__main__':
-    username = 'Gaziz'
+def get_transformed_data():
+    # features to be used for each window
     features = [
-        _slice_local_maximums,
+        _slice_full_breaths,
         _slice_first_abs_difference_signals,
         _slice_second_abs_difference_signals,
         _slice_amplitude,
         _slice_mean,
     ]
-    processed_data = process_breath_data('_Respiration_Data_Calm_' + username)
-    calculate_window_features(processed_data, username, features)
+    usernames = ['Matteo', 'Gaziz']
+    calm_data = []
+    excited_data = []
+    for username in usernames:
+        processed_data = process_breath_data('_Respiration_Data_Calm_' + username)
+        calm_data.append(calculate_window_features(processed_data, username, features))
+    for username in usernames:
+        processed_data = process_breath_data('_Respiration_Data_Excited_' + username)
+        excited_data.append(calculate_window_features(processed_data, username, features))
+    return np.vstack(calm_data), np.vstack(excited_data)
+
+
+if __name__ == '__main__':
+    a, b = get_transformed_data()
