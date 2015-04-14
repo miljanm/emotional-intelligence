@@ -5,7 +5,6 @@ import numpy as np
 import preprocessing_utils
 from scipy.signal import argrelextrema
 
-
 __author__ = 'miljan'
 
 
@@ -124,8 +123,6 @@ def get_transformed_data(window_size=30):
         get_emotion_username_features('James', 'Calm', window_size=window_size),
         get_emotion_username_features('James', 'Excited', window_size=window_size)[1:, :],
         get_emotion_username_features('James', 'Neutral', window_size=window_size)[1:, :])
-    for i in data:
-        print i.shape
     return np.vstack(data)
 
 
