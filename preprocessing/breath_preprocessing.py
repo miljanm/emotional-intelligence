@@ -99,10 +99,9 @@ def calculate_window_features(data, username, features, window_size=30):
     feature_matrix = []
     # go over data ranges, in window_size range * 4 Hz steps
     for i in range(0, len(data), window_size*4):
-        try:
-            data_slice = data[i:i+window_size*4]
-        except:
-            data_slice = data[i:]
+        data_slice = data[i:i+window_size*4]
+        if data_slice.shape[0] < 18:
+            continue
 
         feature_vector = []
         # call the feature functions given in the list of feature functions to be used
@@ -146,7 +145,29 @@ def get_transformed_data(window_size=30):
     return np.vstack(data)
 
 
+def get_emotion_username_features(username, emotion, window_size=30):
+    features = [
+        _slice_full_breaths,
+        _slice_first_abs_difference_signals,
+        _slice_second_abs_difference_signals,
+        _slice_amplitude,
+        _slice_mean,
+    ]
+    processed_data = process_breath_data('_Respiration_Data_' + emotion + '_' + username)
+    temp = calculate_window_features(processed_data, username, features, window_size=window_size)
+    # append labels
+    if emotion == 'Calm':
+        labels = np.ones((temp.shape[0], 1))
+    elif emotion == 'Excited':
+        labels = np.zeros((temp.shape[0], 1))
+    elif emotion == 'Neutral':
+        labels = np.ones((temp.shape[0], 1))*2
+    else:
+        print "Wrong emotion name, allowed are {Calm, Excited, Neutral}"
+    return np.hstack((temp, labels))
+
+
 if __name__ == '__main__':
-    a = get_transformed_data(window_size=30)
+    a = get_emotion_username_features('James', 'Neutral')
     print a
     print a.shape
