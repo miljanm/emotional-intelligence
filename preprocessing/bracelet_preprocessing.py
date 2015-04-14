@@ -83,9 +83,9 @@ class bracelet_measurement_session:
                     self.engineered_data[i,feat_counter+w] = sig_features[w]
                 feat_counter += len(self.feat[sig])
 
-                if self.emotion.lower=='calm':
+                if self.emotion.lower()=='calm':
                     self.engineered_data[i,-1] = 0
-                elif self.emotion.lower=='excited':
+                elif self.emotion.lower()=='excited':
                     self.engineered_data[i,-1] = 1
                 else:
                     self.engineered_data[i,-1] = 2
