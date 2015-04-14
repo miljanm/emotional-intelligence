@@ -8,7 +8,7 @@ import math
 """
 Data structure to store and process the data corresponding to one measurement session:
 - features is a dictionary with the list of features to be computer for each type of data
-- feat_func is a ictionary that correlates the name of the feature to the function that computes it
+- feat_func is a dictionary that correlates the name of the feature to the function that computes it
 """
 class bracelet_measurement_session:
 
@@ -235,6 +235,9 @@ if __name__=='__main__':
         sessions.append(session)
         print session.engineered_data.shape
 
-    data_set = np.concatenate((sessions[0].engineered_data,sessions[1].engineered_data,sessions[2].engineered_data, sessions[3].engineered_data), axis=0)
-    pickle.dump(data_set, open("../data/bracelet.pkl", "wb"))
+    data_set = np.concatenate((sessions[0].engineered_data, sessions[1].engineered_data,sessions[2].engineered_data[:-1,:], sessions[3].engineered_data), axis=0)
 
+    print sessions[0].engineered_data.shape, sessions[1].engineered_data.shape, sessions[2].engineered_data[:-1,:].shape, sessions[3].engineered_data.shape
+    print data_set.shape
+
+    pickle.dump(data_set, open("../data/bracelet.pkl", "wb"))
