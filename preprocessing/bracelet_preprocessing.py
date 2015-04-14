@@ -82,8 +82,13 @@ class bracelet_measurement_session:
                 for w in xrange(len(sig_features)):
                     self.engineered_data[i,feat_counter+w] = sig_features[w]
                 feat_counter += len(self.feat[sig])
-                self.engineered_data[i,-1] = int(self.emotion=='calm')
 
+                if self.emotion=='calm':
+                    self.engineered_data[i,-1] = 0
+                elif self.emotion=='excited':
+                    self.engineered_data[i,-1] = 1
+                else:
+                    self.engineered_data[i,-1] = 2
 
     # ACC: Read data and interpolate/average to get the required sampling frequency
     def read_ACC(self):
@@ -222,7 +227,15 @@ if __name__=='__main__':
     paramsGE = ["Gaziz", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsMC = ["Matteo", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsME = ["Matteo", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    params = [paramsGC, paramsGE, paramsMC, paramsME]
+    paramsG2C = ["Gaziz2", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsG2E = ["Gaziz2", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsG2N = ["Gaziz2", "neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJC = ["James", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJE = ["James", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJN = ["James", "neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    params = [paramsGC, paramsGE, paramsMC, paramsME, paramsG2C, paramsG2E, paramsG2N, paramsJC, paramsJE, paramsJN]
+
+    boundaries = [range(0,48),range(0,39),range(0,33),range(0,27),range(0,30),range(0,30),range(0,25),range(0,30),range(0,31),range(0,19)]
 
     sessions = []
     for p in params:
@@ -235,7 +248,14 @@ if __name__=='__main__':
         sessions.append(session)
         print session.engineered_data.shape
 
-    data_set = np.concatenate((sessions[0].engineered_data, sessions[1].engineered_data,sessions[2].engineered_data[:-1,:], sessions[3].engineered_data), axis=0)
+    i = 0
+    data_set = sessions[0].engineered_data[boundaries[0],:]
+    for s in sessions:
+        if i==0:
+            i+=1
+            continue
+        data_set = np.concatenate((data_set, s.engineered_data[boundaries[i],:]), axis=0)
+        i+=1
 
     print sessions[0].engineered_data.shape, sessions[1].engineered_data.shape, sessions[2].engineered_data[:-1,:].shape, sessions[3].engineered_data.shape
     print data_set.shape
