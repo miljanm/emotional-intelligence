@@ -13,14 +13,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.metrics import confusion_matrix
 
+np.random.seed(42)
 
 # policy
-all_people = False
-
-
-# features
 feat = [1,2,3,4,5,6,7,8,9,10]
-
 
 # unpickle data
 bracelet = pk.load(open("../data/bracelet.pkl", "rb"))
@@ -29,15 +25,13 @@ X_breath = get_transformed_data()
 y = bracelet[:,-1].astype('int')
 X = np.hstack((X_brace, X_breath))
 
-print y
-
 # train on gaziz test on other people
-
-print "\n\ntrain on gaziz, test on other people\n"
+print "\n\nTrain on gaziz, test on other people"
+print "-----------------------------------"
 trainG1 = 87
 trainG1G2 = 169
 
-print 'log reg'
+print '\nLogistic Regression'
 clf = LogisticRegression(dual=False, penalty='l1')
 clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
 ypred = clf.predict(X[trainG1G2:,:])
@@ -47,12 +41,42 @@ f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
 precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
 recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
 
-print cm
-print f1_score_macro
-print precision_macro
-print recall_macro
+print "Confusion Matrix:\n", cm
+print "F1 score: ", f1_score_macro
+print "Precision: ", precision_macro
+print "Recall", recall_macro
 
-print 'random forest'
+print '\nNearest Neighbors'
+clf = KNeighborsClassifier(n_neighbors=3)
+clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
+ypred = clf.predict(X[trainG1G2:,:])
+
+cm = confusion_matrix(y[trainG1G2:], ypred)
+f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
+precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
+recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
+
+print "Confusion Matrix:\n", cm
+print "F1 score: ", f1_score_macro
+print "Precision: ", precision_macro
+print "Recall", recall_macro
+
+print '\nSVM - Linear Classifier'
+clf = svm.SVC(kernel='linear', C=1)
+clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
+ypred = clf.predict(X[trainG1G2:,:])
+
+cm = confusion_matrix(y[trainG1G2:], ypred)
+f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
+precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
+recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
+
+print "Confusion Matrix:\n", cm
+print "F1 score: ", f1_score_macro
+print "Precision: ", precision_macro
+print "Recall", recall_macro
+
+print '\nRandom Forest'
 clf = RandomForestClassifier(n_estimators=10,min_samples_split=2)
 clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
 ypred = clf.predict(X[trainG1G2:,:])
@@ -62,13 +86,14 @@ f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
 precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
 recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
 
-print cm
-print f1_score_macro
-print precision_macro
-print recall_macro
+print "Confusion Matrix:\n", cm
+print "F1 score: ", f1_score_macro
+print "Precision: ", precision_macro
+print "Recall", recall_macro
 
-# Experiment with different classifiers whole dataset CV
-print "\n\ntrain on everyone, test on everyone\n"
+# Experiment with different classifiers, whole dataset CV
+print "\n\nTrain on everyone, test on everyone"
+print "-------------------------------"
 
 # shuffle
 '''
@@ -79,10 +104,6 @@ np.random.shuffle(y)
 '''
 
 n_folds = 5
-
-clf = LogisticRegression(dual=False, penalty='l1')
-scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
-print("\nLogReg l1 regularized - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 clf = LogisticRegression(dual=False, penalty='l2')
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
@@ -103,10 +124,6 @@ print("KNN k=7 - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(),
 clf = RandomForestClassifier(n_estimators=180,min_samples_split=4)
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
 print("\nEnsemble, Random Forest - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
-clf = GradientBoostingClassifier(n_estimators=180,min_samples_split=4)
-scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
-print("Ensemble, Gradient Boosting - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 clf = svm.SVC(kernel='linear', C=1)
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
