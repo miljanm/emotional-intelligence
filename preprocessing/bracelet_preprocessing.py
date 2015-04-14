@@ -238,5 +238,6 @@ if __name__=='__main__':
     data_set = np.concatenate((sessions[0].engineered_data, sessions[1].engineered_data,sessions[2].engineered_data[:-1,:], sessions[3].engineered_data), axis=0)
 
     print sessions[0].engineered_data.shape, sessions[1].engineered_data.shape, sessions[2].engineered_data[:-1,:].shape, sessions[3].engineered_data.shape
+    print data_set.shape
 
     pickle.dump(data_set, open("../data/bracelet.pkl", "wb"))
