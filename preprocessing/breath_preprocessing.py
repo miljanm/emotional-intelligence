@@ -113,17 +113,19 @@ def calculate_window_features(data, username, features, window_size=30):
 
 
 def get_transformed_data(window_size=30):
-    data = \
-        (get_emotion_username_features('Gaziz', 'Calm'),
-        get_emotion_username_features('Gaziz', 'Excited'),
-        get_emotion_username_features('Gaziz2', 'Calm'),
-        get_emotion_username_features('Gaziz2', 'Excited'),
-        get_emotion_username_features('Gaziz2', 'Neutral'),
-        get_emotion_username_features('Matteo', 'Calm'),
-        get_emotion_username_features('Matteo', 'Excited'),
-        get_emotion_username_features('James', 'Calm'),
-        get_emotion_username_features('James', 'Excited'),
-        get_emotion_username_features('James', 'Neutral'))
+    data = (\
+        get_emotion_username_features('Gaziz', 'Calm', window_size=window_size)[2:, :],
+        get_emotion_username_features('Gaziz', 'Excited', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Calm', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Excited', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Neutral', window_size=window_size),
+        get_emotion_username_features('Matteo', 'Calm', window_size=window_size),
+        get_emotion_username_features('Matteo', 'Excited', window_size=window_size),
+        get_emotion_username_features('James', 'Calm', window_size=window_size),
+        get_emotion_username_features('James', 'Excited', window_size=window_size)[1:, :],
+        get_emotion_username_features('James', 'Neutral', window_size=window_size)[1:, :])
+    for i in data:
+        print i.shape
     return np.vstack(data)
 
 
@@ -150,6 +152,4 @@ def get_emotion_username_features(username, emotion, window_size=30):
 
 
 if __name__ == '__main__':
-    a = get_emotion_username_features('James', 'Neutral')
-    print a
-    print a.shape
+    get_transformed_data()
