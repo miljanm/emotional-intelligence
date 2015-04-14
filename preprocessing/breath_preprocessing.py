@@ -113,35 +113,17 @@ def calculate_window_features(data, username, features, window_size=30):
 
 
 def get_transformed_data(window_size=30):
-    # features to be used for each window
-    features = [
-        _slice_full_breaths,
-        _slice_first_abs_difference_signals,
-        _slice_second_abs_difference_signals,
-        _slice_amplitude,
-        _slice_mean,
-    ]
-    usernames = ['Matteo', 'Gaziz']
-    states = ['Calm', 'Excited']
-
-    # final data matrix
-    data = []
-    for username in usernames:
-        for state in states:
-            # get the feature matrix for current state, username combination
-            processed_data = process_breath_data('_Respiration_Data_' + state + '_' + username)
-            temp = calculate_window_features(processed_data, username, features, window_size=window_size)
-            # align matrix lengths with other sensors
-            if state == 'Calm' and username == 'Gaziz':
-                temp = temp[2:, :]
-            # append labels
-            if state == 'Calm':
-                labels = np.ones((temp.shape[0], 1))
-            elif state == 'Excited':
-                labels = np.zeros((temp.shape[0], 1))
-            else:
-                pass
-            data.append(np.hstack((temp, labels)))
+    data = \
+        (get_emotion_username_features('Gaziz', 'Calm'),
+        get_emotion_username_features('Gaziz', 'Excited'),
+        get_emotion_username_features('Gaziz2', 'Calm'),
+        get_emotion_username_features('Gaziz2', 'Excited'),
+        get_emotion_username_features('Gaziz2', 'Neutral'),
+        get_emotion_username_features('Matteo', 'Calm'),
+        get_emotion_username_features('Matteo', 'Excited'),
+        get_emotion_username_features('James', 'Calm'),
+        get_emotion_username_features('James', 'Excited'),
+        get_emotion_username_features('James', 'Neutral'))
     return np.vstack(data)
 
 
