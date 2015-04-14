@@ -233,7 +233,7 @@ if __name__=='__main__':
     paramsJC = ["James", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsJE = ["James", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsJN = ["James", "neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    params = [paramsGC, paramsGE, paramsMC, paramsME, paramsG2C, paramsG2E, paramsG2N, paramsJC, paramsJE, paramsJN]
+    params = [paramsGC, paramsGE, paramsG2C, paramsG2E, paramsG2N, paramsMC, paramsME, paramsJC, paramsJE, paramsJN]
 
     boundaries = [range(0,48),range(0,39),range(0,33),range(0,27),range(0,30),range(0,30),range(0,25),range(0,30),range(0,31),range(0,19)]
 
