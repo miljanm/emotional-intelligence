@@ -10,6 +10,13 @@ from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import confusion_matrix
+
+
+# policy
+all_people = False
+
 
 # features
 feat = [1,2,3,4,5,6,7,8,9,10]
@@ -24,14 +31,53 @@ X = np.hstack((X_brace, X_breath))
 
 print y
 
+# train on gaziz test on other people
+
+print "\n\ntrain on gaziz, test on other people\n"
+trainG1 = 87
+trainG1G2 = 169
+
+print 'log reg'
+clf = LogisticRegression(dual=False, penalty='l1')
+clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
+ypred = clf.predict(X[trainG1G2:,:])
+
+cm = confusion_matrix(y[trainG1G2:], ypred)
+f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
+precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
+recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
+
+print cm
+print f1_score_macro
+print precision_macro
+print recall_macro
+
+print 'random forest'
+clf = RandomForestClassifier(n_estimators=10,min_samples_split=2)
+clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
+ypred = clf.predict(X[trainG1G2:,:])
+
+cm = confusion_matrix(y[trainG1G2:], ypred)
+f1_score_macro = f1_score(y[trainG1G2:], ypred, average='macro')
+precision_macro = precision_score(y[trainG1G2:], ypred, average='macro')
+recall_macro = recall_score(y[trainG1G2:], ypred, average='macro')
+
+print cm
+print f1_score_macro
+print precision_macro
+print recall_macro
+
+# Experiment with different classifiers whole dataset CV
+print "\n\ntrain on everyone, test on everyone\n"
 
 # shuffle
+'''
 rng_state = np.random.get_state()
 np.random.shuffle(X)
 np.random.set_state(rng_state)
 np.random.shuffle(y)
+'''
 
-# Experiment with different classifiers
 n_folds = 5
 
 clf = LogisticRegression(dual=False, penalty='l1')
