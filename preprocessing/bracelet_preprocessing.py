@@ -83,9 +83,9 @@ class bracelet_measurement_session:
                     self.engineered_data[i,feat_counter+w] = sig_features[w]
                 feat_counter += len(self.feat[sig])
 
-                if self.emotion=='calm':
+                if self.emotion.lower=='calm':
                     self.engineered_data[i,-1] = 0
-                elif self.emotion=='excited':
+                elif self.emotion.lower=='excited':
                     self.engineered_data[i,-1] = 1
                 else:
                     self.engineered_data[i,-1] = 2
@@ -227,15 +227,15 @@ if __name__=='__main__':
     paramsGE = ["Gaziz", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsMC = ["Matteo", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
     paramsME = ["Matteo", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsG2C = ["Gaziz2", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsG2E = ["Gaziz2", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsG2N = ["Gaziz2", "neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsJC = ["James", "calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsJE = ["James", "excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
-    paramsJN = ["James", "neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsG2C = ["Gaziz2", "Calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsG2E = ["Gaziz2", "Excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsG2N = ["Gaziz2", "Neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJC = ["James", "Calm", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJE = ["James", "Excited", 30.0, [32.0, 4.0, 64.0], 4.0,]
+    paramsJN = ["James", "Neutral", 30.0, [32.0, 4.0, 64.0], 4.0,]
     params = [paramsGC, paramsGE, paramsG2C, paramsG2E, paramsG2N, paramsMC, paramsME, paramsJC, paramsJE, paramsJN]
 
-    boundaries = [range(0,48),range(0,39),range(0,33),range(0,27),range(0,30),range(0,30),range(0,25),range(0,30),range(0,31),range(0,19)]
+    boundaries = [range(0,48),range(0,39),range(0,30),range(0,30),range(0,22),range(0,32),range(0,27),range(0,29),range(0,31), range(0,19)]
 
     sessions = []
     for p in params:
