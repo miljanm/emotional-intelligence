@@ -2,6 +2,8 @@
 import pickle as pk
 import numpy as np
 
+from preprocessing.breath_preprocessing import get_transformed_data
+
 from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
@@ -10,14 +12,24 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 # features
-f = [0]
+feat = [1,2,3,4,5,6,7,8,9,10]
 
 
 # unpickle data
-data_set = pk.load(open("../data/bracelet.pkl", "rb"))
-np.random.shuffle(data_set)
-X = data_set[:,f]
-y = data_set[:,-1].astype('int')-1
+bracelet = pk.load(open("../data/bracelet.pkl", "rb"))
+X_brace = bracelet[:,feat]
+X_breath = get_transformed_data()
+y = bracelet[:,-1].astype('int')
+X = np.hstack((X_brace, X_breath))
+
+print y
+
+
+# shuffle
+rng_state = np.random.get_state()
+np.random.shuffle(X)
+np.random.set_state(rng_state)
+np.random.shuffle(y)
 
 
 # Experiment with different classifiers
