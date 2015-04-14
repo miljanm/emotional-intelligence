@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 import preprocessing_utils
 from scipy.signal import argrelextrema
-from itertools import product
+
 
 __author__ = 'miljan'
 
@@ -113,7 +113,7 @@ def calculate_window_features(data, username, features, window_size=30):
     return np.array(feature_matrix)
 
 
-def get_transformed_data():
+def get_transformed_data(window_size=30):
     # features to be used for each window
     features = [
         _slice_full_breaths,
@@ -123,16 +123,30 @@ def get_transformed_data():
         _slice_mean,
     ]
     usernames = ['Matteo', 'Gaziz']
-    calm_data = []
-    excited_data = []
+    states = ['Calm', 'Excited']
+
+    # final data matrix
+    data = []
     for username in usernames:
-        processed_data = process_breath_data('_Respiration_Data_Calm_' + username)
-        calm_data.append(calculate_window_features(processed_data, username, features))
-    for username in usernames:
-        processed_data = process_breath_data('_Respiration_Data_Excited_' + username)
-        excited_data.append(calculate_window_features(processed_data, username, features))
-    return np.vstack(calm_data), np.vstack(excited_data)
+        for state in states:
+            # get the feature matrix for current state, username combination
+            processed_data = process_breath_data('_Respiration_Data_' + state + '_' + username)
+            temp = calculate_window_features(processed_data, username, features, window_size=window_size)
+            # align matrix lengths with other sensors
+            if state == 'Calm' and username == 'Gaziz':
+                temp = temp[2:, :]
+            # append labels
+            if state == 'Calm':
+                labels = np.ones((temp.shape[0], 1))
+            elif state == 'Excited':
+                labels = np.zeros((temp.shape[0], 1))
+            else:
+                pass
+            data.append(np.hstack((temp, labels)))
+    return np.vstack(data)
 
 
 if __name__ == '__main__':
-    a, b = get_transformed_data()
+    a = get_transformed_data(window_size=30)
+    print a
+    print a.shape
