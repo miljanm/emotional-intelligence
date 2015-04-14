@@ -9,10 +9,14 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 
+# features
+f = [0]
+
+
 # unpickle data
 data_set = pk.load(open("../data/bracelet.pkl", "rb"))
-X = data_set[:,0:-1]
-np.random.shuffle(X)
+np.random.shuffle(data_set)
+X = data_set[:,f]
 y = data_set[:,-1].astype('int')-1
 
 
