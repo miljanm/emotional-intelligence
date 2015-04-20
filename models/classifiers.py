@@ -20,26 +20,25 @@ np.random.seed(42)
 
 # policy
 feat = [1,2,3,4,5,6,7,8,9,10]
-final_selection = [9,10,11,12]
 
 # unpickle data
 bracelet = pk.load(open("../data/bracelet.pkl", "rb"))
 X_brace = bracelet[:,feat]
 X_breath = get_transformed_data()
 y = bracelet[:,-1].astype('int')
-X = np.hstack((X_brace, X_breath))[:, final_selection]
+X = np.hstack((X_brace, X_breath))
 
 # feature selection using RFE
+print "\n\nUse Recursive Feature Elimination to select features"
+print "-----------------------------------"
 model = LogisticRegression()
 rfe = RFE(model, 3)
 rfe = rfe.fit(X,y)
-print(rfe.support_)
-print(rfe.ranking_)
+print '\nRanking: ',rfe.ranking_
 
-# feature importance
-model = ExtraTreesClassifier()
-model.fit(X,y)
-print(model.feature_importances_)
+# select
+final_selection = [4,6,9,10,11,12,13]
+X = X[:, final_selection]
 
 # train on gaziz test on other people
 print "\n\nTrain on gaziz, test on other people"
@@ -77,8 +76,8 @@ print "F1 score: ", f1_score_macro
 print "Precision: ", precision_macro
 print "Recall", recall_macro
 
-print '\nSVM - Linear Classifier'
-clf = svm.SVC(kernel='linear', C=1)
+print '\nSVM - Ploynomial Kernel'
+clf = svm.SVC(kernel='poly', C=1)
 clf.fit(X[0:trainG1G2,:],y[:trainG1G2])
 ypred = clf.predict(X[trainG1G2:,:])
 
