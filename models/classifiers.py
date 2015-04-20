@@ -4,6 +4,7 @@ import numpy as np
 
 from preprocessing.breath_preprocessing import get_transformed_data
 
+from sklearn.feature_selection import RFE
 from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
@@ -12,6 +13,8 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.metrics import confusion_matrix
+
+from sklearn.ensemble import ExtraTreesClassifier
 
 np.random.seed(42)
 
@@ -24,6 +27,18 @@ X_brace = bracelet[:,feat]
 X_breath = get_transformed_data()
 y = bracelet[:,-1].astype('int')
 X = np.hstack((X_brace, X_breath))
+
+# feature selection using RFE
+model = LogisticRegression()
+rfe = RFE(model, 3)
+rfe = rfe.fit(X,y)
+print(rfe.support_)
+print(rfe.ranking_)
+
+# feature importance
+model = ExtraTreesClassifier()
+model.fit(X,y)
+print(model.feature_importances_)
 
 # train on gaziz test on other people
 print "\n\nTrain on gaziz, test on other people"
