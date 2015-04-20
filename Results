@@ -1,0 +1,63 @@
+
+Use Recursive Feature Elimination to select features
+-----------------------------------
+
+Ranking:  [13  9 10  6  5  8  4 11  7  1  2  1  1  3 12]
+
+
+Train on gaziz, test on other people
+-----------------------------------
+
+Logistic Regression
+Confusion Matrix:
+[[61  0  0]
+ [ 0 57  1]
+ [ 0  4 15]]
+F1 score:  0.93837535014
+Precision:  0.957308743169
+Recall 0.924077434967
+
+Nearest Neighbors
+Confusion Matrix:
+[[36 23  2]
+ [21 35  2]
+ [ 4 12  3]]
+F1 score:  0.455936055065
+Precision:  0.506245120999
+Recall 0.45050231571
+
+SVM - Ploynomial Kernel
+Confusion Matrix:
+[[61  0  0]
+ [ 7 50  1]
+ [ 1 11  7]]
+F1 score:  0.765772063811
+Precision:  0.859576700721
+Recall 0.743496672716
+
+Random Forest
+Confusion Matrix:
+[[61  0  0]
+ [ 0 57  1]
+ [ 0 13  6]]
+F1 score:  0.784054487179
+Precision:  0.890476190476
+Recall 0.766182698125
+
+
+Train on everyone, test on everyone
+-------------------------------
+LogReg l2 regularized - Cross Validation Accuracy: 0.96 (+/- 0.05)
+
+KNN k=3 - Cross Validation Accuracy: 0.67 (+/- 0.29)
+KNN k=5 - Cross Validation Accuracy: 0.66 (+/- 0.22)
+KNN k=7 - Cross Validation Accuracy: 0.66 (+/- 0.19)
+
+Ensemble, Random Forest - Cross Validation Accuracy: 1.00 (+/- 0.01)
+
+Linear SVM - Cross Validation Accuracy: 1.00 (+/- 0.00)
+Polynomial (d=2) kernel SVM - Cross Validation Accuracy: 0.99 (+/- 0.04)
+Polynomial (d=3) kernel SVM - Cross Validation Accuracy: 0.96 (+/- 0.06)
+Sigmoid kernel SVM - Cross Validation Accuracy: 0.45 (+/- 0.01)
+
+Process finished with exit code 0
