@@ -1,0 +1,58 @@
+Train on gaziz, test on other people
+-----------------------------------
+
+Logistic Regression
+Confusion Matrix:
+[[42  0 19]
+ [ 7 21 30]
+ [ 1  5 13]]
+F1 score:  0.525914803693
+Precision:  0.619123242349
+Recall 0.578268027332
+
+Nearest Neighbors
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+Confusion Matrix:
+[[33 28  0]
+ [ 4 54  0]
+ [ 9 10  0]]
+F1 score:  0.445607476636
+Precision:  0.434782608696
+Recall 0.490672696439
+
+SVM - Ploynomial Kernel
+Confusion Matrix:
+[[14 47  0]
+ [ 1 53  4]
+ [ 8  6  5]]
+F1 score:  0.44560588463
+Precision:  0.554750402576
+Recall 0.468819731635
+
+Random Forest
+Confusion Matrix:
+[[61  0  0]
+ [ 0 58  0]
+ [ 0 15  4]]
+F1 score:  0.744440756721
+Precision:  0.931506849315
+Recall 0.736842105263
+
+
+Train on everyone, test on everyone
+-------------------------------
+LogReg l2 regularized - Cross Validation Accuracy: 0.81 (+/- 0.47)
+
+KNN k=3 - Cross Validation Accuracy: 0.77 (+/- 0.38)
+KNN k=5 - Cross Validation Accuracy: 0.76 (+/- 0.36)
+KNN k=7 - Cross Validation Accuracy: 0.77 (+/- 0.32)
+
+Ensemble, Random Forest - Cross Validation Accuracy: 1.00 (+/- 0.01)
+
+Linear SVM - Cross Validation Accuracy: 0.83 (+/- 0.56)
+Polynomial (d=2) kernel SVM - Cross Validation Accuracy: 0.69 (+/- 0.55)
+Polynomial (d=3) kernel SVM - Cross Validation Accuracy: 0.68 (+/- 0.49)
+Sigmoid kernel SVM - Cross Validation Accuracy: 0.45 (+/- 0.01)
