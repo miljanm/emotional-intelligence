@@ -1,4 +1,4 @@
 # emotional-intelligence
 
 
-Hello world!
+Project which detectes emotional state of a person based on biosensor and breath meter readings.
