@@ -20,13 +20,14 @@ np.random.seed(42)
 
 # policy
 feat = [1,2,3,4,5,6,7,8,9,10]
+final_selection = [9,10,11,12]
 
 # unpickle data
 bracelet = pk.load(open("../data/bracelet.pkl", "rb"))
 X_brace = bracelet[:,feat]
 X_breath = get_transformed_data()
 y = bracelet[:,-1].astype('int')
-X = np.hstack((X_brace, X_breath))
+X = np.hstack((X_brace, X_breath))[:, final_selection]
 
 # feature selection using RFE
 model = LogisticRegression()
