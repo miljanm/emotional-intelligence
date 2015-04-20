@@ -4,11 +4,13 @@ from collections import defaultdict
 import numpy as np
 import preprocessing_utils
 from scipy.signal import argrelextrema
+import matplotlib.pyplot as pl
+
 
 __author__ = 'miljan'
 
 
-def process_breath_data(filename, is_pickled=False):
+def read_breath_data(filename, is_pickled=False):
     """ Takes the raw breath data and returns a numpy matrix with each row representing a second
         with sampling rate of 100 Hz
 
@@ -57,10 +59,17 @@ def process_breath_data(filename, is_pickled=False):
     return breath_data_np
 
 
-def _slice_full_breaths(data_slice):
+def _slice_full_breaths(data_slice, is_plotted=False):
     smoothed_data = preprocessing_utils.smooth_signal(data_slice, window_len=17, window='bartlett')
     local_mins = argrelextrema(smoothed_data, np.less, order=5)
     local_maxs = argrelextrema(smoothed_data, np.greater, order=5)
+    if is_plotted:
+        pl.plot(data_slice)
+        pl.plot(smoothed_data[8:-8])
+        pl.title('Original and smoothed signal of a breath data window')
+        pl.xlabel('Hz')
+        pl.ylabel('Breath value')
+        pl.show()
     return min(len(local_mins[0]), len(local_maxs[0]))
 
 
@@ -81,8 +90,8 @@ def _slice_mean(data_slice):
 
 
 def calculate_daily_user_mean(username, is_pickled=False):
-    calm_data = process_breath_data('_Respiration_Data_Calm_' + username)
-    excited_data = process_breath_data('_Respiration_Data_Excited_' + username)
+    calm_data = read_breath_data('_Respiration_Data_Calm_' + username)
+    excited_data = read_breath_data('_Respiration_Data_Excited_' + username)
     mean = (np.average(calm_data) + np.average(excited_data)) / 2.0
     if is_pickled:
         pickle.dump(mean, open('../data/pickles/_Respiration_Data_Average_' + username, 'wb'))
@@ -134,18 +143,18 @@ def get_emotion_username_features(username, emotion, window_size=30):
         _slice_amplitude,
         _slice_mean,
     ]
-    processed_data = process_breath_data('_Respiration_Data_' + emotion + '_' + username)
+    processed_data = read_breath_data('_Respiration_Data_' + emotion + '_' + username)
     temp = calculate_window_features(processed_data, username, features, window_size=window_size)
-    # append labels
-    if emotion == 'Calm':
-        labels = np.ones((temp.shape[0], 1))
-    elif emotion == 'Excited':
-        labels = np.zeros((temp.shape[0], 1))
-    elif emotion == 'Neutral':
-        labels = np.ones((temp.shape[0], 1))*2
-    else:
-        print "Wrong emotion name, allowed are {Calm, Excited, Neutral}"
-    return np.hstack((temp, labels))
+    # # append labels
+    # if emotion == 'Calm':
+    #     labels = np.ones((temp.shape[0], 1))
+    # elif emotion == 'Excited':
+    #     labels = np.zeros((temp.shape[0], 1))
+    # elif emotion == 'Neutral':
+    #     labels = np.ones((temp.shape[0], 1))*2
+    # else:
+    #     print "Wrong emotion name, allowed are {Calm, Excited, Neutral}"
+    return temp
 
 
 if __name__ == '__main__':
