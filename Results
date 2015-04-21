@@ -11,53 +11,52 @@ Train on gaziz, test on other people
 Logistic Regression
 Confusion Matrix:
 [[61  0  0]
- [ 0 57  1]
- [ 0  4 15]]
-F1 score:  0.93837535014
-Precision:  0.957308743169
-Recall 0.924077434967
+ [ 0 52  6]
+ [ 0  1 18]]
+F1 score:  0.924715413088
+Precision:  0.910377358491
+Recall 0.94797338173
 
 Nearest Neighbors
 Confusion Matrix:
-[[36 23  2]
- [21 35  2]
- [ 4 12  3]]
-F1 score:  0.455936055065
-Precision:  0.506245120999
-Recall 0.45050231571
+[[23 26 12]
+ [13 34 11]
+ [ 9  7  3]]
+F1 score:  0.370431865828
+Precision:  0.377986137688
+Recall 0.373716937907
 
 SVM - Ploynomial Kernel
 Confusion Matrix:
-[[61  0  0]
- [ 7 50  1]
- [ 1 11  7]]
-F1 score:  0.765772063811
-Precision:  0.859576700721
-Recall 0.743496672716
+[[32  2 27]
+ [ 7 33 18]
+ [ 1 14  4]]
+F1 score:  0.456044285022
+Precision:  0.518367346939
+Recall 0.434693998988
 
 Random Forest
 Confusion Matrix:
 [[61  0  0]
- [ 0 57  1]
- [ 0 13  6]]
-F1 score:  0.784054487179
-Precision:  0.890476190476
-Recall 0.766182698125
+ [ 1 57  0]
+ [ 1  5 13]]
+F1 score:  0.915456989247
+Precision:  0.962536268988
+Recall 0.888989715668
 
 
 Train on everyone, test on everyone
 -------------------------------
-LogReg l2 regularized - Cross Validation Accuracy: 0.96 (+/- 0.05)
+LogReg l2 regularized - Cross Validation Accuracy: 0.94 (+/- 0.12)
 
-KNN k=3 - Cross Validation Accuracy: 0.67 (+/- 0.29)
-KNN k=5 - Cross Validation Accuracy: 0.66 (+/- 0.22)
-KNN k=7 - Cross Validation Accuracy: 0.66 (+/- 0.19)
+KNN k=3 - Cross Validation Accuracy: 0.70 (+/- 0.58)
+KNN k=5 - Cross Validation Accuracy: 0.70 (+/- 0.55)
+KNN k=7 - Cross Validation Accuracy: 0.71 (+/- 0.49)
 
 Ensemble, Random Forest - Cross Validation Accuracy: 1.00 (+/- 0.01)
 
-Linear SVM - Cross Validation Accuracy: 1.00 (+/- 0.00)
-Polynomial (d=2) kernel SVM - Cross Validation Accuracy: 0.99 (+/- 0.04)
-Polynomial (d=3) kernel SVM - Cross Validation Accuracy: 0.96 (+/- 0.06)
+Polynomial (d=2) kernel SVM - Cross Validation Accuracy: 0.94 (+/- 0.18)
+Polynomial (d=3) kernel SVM - Cross Validation Accuracy: 0.82 (+/- 0.48)
 Sigmoid kernel SVM - Cross Validation Accuracy: 0.45 (+/- 0.01)
 
 Process finished with exit code 0

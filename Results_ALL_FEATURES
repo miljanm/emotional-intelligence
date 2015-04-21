@@ -1,3 +1,9 @@
+Use Recursive Feature Elimination to select features
+-----------------------------------
+
+Ranking:  [13  9 10  6  5  8  4 11  7  1  2  1  1  3 12]
+
+
 Train on gaziz, test on other people
 -----------------------------------
 
@@ -11,10 +17,6 @@ Precision:  0.619123242349
 Recall 0.578268027332
 
 Nearest Neighbors
-/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
-  'precision', 'predicted', average, warn_for)
-/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.
-  'precision', 'predicted', average, warn_for)
 Confusion Matrix:
 [[33 28  0]
  [ 4 54  0]
@@ -24,6 +26,10 @@ Precision:  0.434782608696
 Recall 0.490672696439
 
 SVM - Ploynomial Kernel
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+/usr/local/lib/python2.7/dist-packages/sklearn/metrics/metrics.py:1771: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
 Confusion Matrix:
 [[14 47  0]
  [ 1 53  4]
@@ -52,7 +58,8 @@ KNN k=7 - Cross Validation Accuracy: 0.77 (+/- 0.32)
 
 Ensemble, Random Forest - Cross Validation Accuracy: 1.00 (+/- 0.01)
 
-Linear SVM - Cross Validation Accuracy: 0.83 (+/- 0.56)
 Polynomial (d=2) kernel SVM - Cross Validation Accuracy: 0.69 (+/- 0.55)
 Polynomial (d=3) kernel SVM - Cross Validation Accuracy: 0.68 (+/- 0.49)
 Sigmoid kernel SVM - Cross Validation Accuracy: 0.45 (+/- 0.01)
+
+Process finished with exit code 0
