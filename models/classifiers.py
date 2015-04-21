@@ -37,8 +37,8 @@ rfe = rfe.fit(X,y)
 print '\nRanking: ',rfe.ranking_
 
 # select
-final_selection = [4,6,9,10,11,12,13]
-X = X[:, final_selection]
+#final_selection = [3.4,6,9,10,11,12,13]
+#X = X[:, final_selection]
 
 # train on gaziz test on other people
 print "\n\nTrain on gaziz, test on other people"
@@ -140,13 +140,9 @@ clf = RandomForestClassifier(n_estimators=180,min_samples_split=4)
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
 print("\nEnsemble, Random Forest - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
-clf = svm.SVC(kernel='linear', C=1)
-scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
-print("\nLinear SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
 clf = svm.SVC(kernel='poly', degree=2, C=1)
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
-print("Polynomial (d=2) kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+print("\nPolynomial (d=2) kernel SVM - Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 clf = svm.SVC(kernel='poly', degree=3, C=1)
 scores = cross_validation.cross_val_score(clf, X, y, cv=n_folds)
