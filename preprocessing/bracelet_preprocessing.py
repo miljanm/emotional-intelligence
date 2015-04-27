@@ -36,10 +36,6 @@ class bracelet_measurement_session:
 
         self.engineered_data = []
 
-    # TODO subtract day average for patient
-    def normalize_signals(self, avg_list):
-        pass
-
     # compute slot mean
     def mean_feature(self, slot):
         return float(sum(slot))/len(slot)
@@ -57,10 +53,6 @@ class bracelet_measurement_session:
     def approx_secondorder_feature(self, slot):
         abs_second_diff = np.absolute(np.diff(np.diff(np.array(slot))))
         return np.mean(abs_second_diff)
-
-    # TODO compute mean frequency
-    def frequency_feature(self, slot):
-        pass
 
     # compute features
     def compute_features(self):
@@ -191,19 +183,6 @@ class bracelet_measurement_session:
         # print
         if self.debug_mode:
             print self.data['BVP'], len(self.data['BVP'])
-
-
-"""
-Utility functions:
-- derive global, inter session data
-- separate neutral slots
-"""
-def get_patient_averages(sessions, patient):
-    pass
-
-def get_neutral_slots(sessions, patient):
-    pass
-
 
 
 '''

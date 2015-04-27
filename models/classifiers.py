@@ -1,4 +1,3 @@
-# import
 import pickle as pk
 import numpy as np
 
@@ -14,7 +13,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.metrics import confusion_matrix
 
-from sklearn.ensemble import ExtraTreesClassifier
 
 np.random.seed(42)
 
@@ -32,13 +30,13 @@ X = np.hstack((X_brace, X_breath))
 print "\n\nUse Recursive Feature Elimination to select features"
 print "-----------------------------------"
 model = LogisticRegression()
-rfe = RFE(model, 3)
+rfe = RFE(model, 8)
 rfe = rfe.fit(X,y)
 print '\nRanking: ',rfe.ranking_
 
 # select
-#final_selection = [3.4,6,9,10,11,12,13]
-#X = X[:, final_selection]
+final_selection = [3,4,6,9,10,11,12,13]
+X = X[:, final_selection]
 
 # train on gaziz test on other people
 print "\n\nTrain on gaziz, test on other people"

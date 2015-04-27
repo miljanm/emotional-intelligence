@@ -7,9 +7,6 @@ from scipy.signal import argrelextrema
 import matplotlib.pyplot as pl
 
 
-__author__ = 'miljan'
-
-
 def read_breath_data(filename, is_pickled=False):
     """ Takes the raw breath data and returns a numpy matrix with each row representing a second
         with sampling rate of 100 Hz
@@ -60,6 +57,13 @@ def read_breath_data(filename, is_pickled=False):
 
 
 def _slice_full_breaths(data_slice, is_plotted=False):
+    """
+    Calculates the number of full breaths in a given window
+
+    :param data_slice: window data
+    :param is_plotted: boolean, if smoothing should be plotted, for testing purposes
+    :return: min(#minima, #maxima)
+    """
     smoothed_data = preprocessing_utils.smooth_signal(data_slice, window_len=17, window='bartlett')
     local_mins = argrelextrema(smoothed_data, np.less, order=5)
     local_maxs = argrelextrema(smoothed_data, np.greater, order=5)
@@ -74,22 +78,53 @@ def _slice_full_breaths(data_slice, is_plotted=False):
 
 
 def _slice_first_abs_difference_signals(data_slice):
+    """
+    Gives sum of first absolute differences of window signals, approximates first gradient.
+
+    :param data_slice: window data
+    :return: first gradient
+    """
     return np.sum(np.abs(data_slice[1:] - data_slice[:-1])) / (len(data_slice) - 1)
 
 
 def _slice_second_abs_difference_signals(data_slice):
+    """
+    Gives sum of second absolute differences of window signals, approximates second gradient (Laplacian).
+
+    :param data_slice: window data
+    :return: second gradient
+    """
     return np.sum(np.abs(data_slice[2:] - data_slice[:-2])) / (len(data_slice) - 2)
 
 
 def _slice_amplitude(data_slice):
+    """
+    Standard deviation of window data
+
+    :param data_slice: window data
+    :return: sigma
+    """
     return np.std(data_slice)
 
 
 def _slice_mean(data_slice):
+    """
+    Mean of window data
+
+    :param data_slice: window data
+    :return: mean
+    """
     return np.mean(data_slice)
 
 
 def calculate_daily_user_mean(username, is_pickled=False):
+    """
+    Calculates the mean value of all the daily data for a user, to be used to normalization
+
+    :param username: user for which to calculate
+    :param is_pickled: whether to save for later reuse
+    :return: mean of daily measurements for a user
+    """
     calm_data = read_breath_data('_Respiration_Data_Calm_' + username)
     excited_data = read_breath_data('_Respiration_Data_Excited_' + username)
     mean = (np.average(calm_data) + np.average(excited_data)) / 2.0
@@ -99,6 +134,15 @@ def calculate_daily_user_mean(username, is_pickled=False):
 
 
 def calculate_window_features(data, username, features, window_size=30):
+    """
+    Calculates all the requested features for a specific user and a given window size
+
+    :param data: raw data of the user
+    :param username: user
+    :param features: all the requested features, a list of names
+    :param window_size: size of the window, in second, for which features should be calculated
+    :return: user_data_size/window x feature_vector matrix of features
+    """
     data = np.reshape(data, (data.shape[0] * 4, 25))
     # calculate average measurement for each second
     data = np.average(data, 1)
@@ -120,22 +164,16 @@ def calculate_window_features(data, username, features, window_size=30):
     return np.array(feature_matrix)
 
 
-def get_transformed_data(window_size=30):
-    data = (\
-        get_emotion_username_features('Gaziz', 'Calm', window_size=window_size)[2:, :],
-        get_emotion_username_features('Gaziz', 'Excited', window_size=window_size),
-        get_emotion_username_features('Gaziz2', 'Calm', window_size=window_size),
-        get_emotion_username_features('Gaziz2', 'Excited', window_size=window_size),
-        get_emotion_username_features('Gaziz2', 'Neutral', window_size=window_size),
-        get_emotion_username_features('Matteo', 'Calm', window_size=window_size),
-        get_emotion_username_features('Matteo', 'Excited', window_size=window_size),
-        get_emotion_username_features('James', 'Calm', window_size=window_size),
-        get_emotion_username_features('James', 'Excited', window_size=window_size)[1:, :],
-        get_emotion_username_features('James', 'Neutral', window_size=window_size)[1:, :])
-    return np.vstack(data)
-
-
 def get_emotion_username_features(username, emotion, window_size=30):
+    """
+    Gets features for a specific user and a specific emotion
+
+    :param username: user
+    :param emotion: emotion
+    :param window_size: size of the window, in second, for which features should be calculated
+    :return: user_data_size/window x feature_vector matrix of features
+    """
+    # specify which features to use
     features = [
         _slice_full_breaths,
         _slice_first_abs_difference_signals,
@@ -155,6 +193,27 @@ def get_emotion_username_features(username, emotion, window_size=30):
     # else:
     #     print "Wrong emotion name, allowed are {Calm, Excited, Neutral}"
     return temp
+
+
+def get_transformed_data(window_size=30):
+    """
+    Returns features extracted for the whole data set, and all the users
+
+    :param window_size: size of the window, in second, for which features should be calculated
+    :return: dataset_size/window x feature_vector matrix of features
+    """
+    data = (\
+        get_emotion_username_features('Gaziz', 'Calm', window_size=window_size)[2:, :],
+        get_emotion_username_features('Gaziz', 'Excited', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Calm', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Excited', window_size=window_size),
+        get_emotion_username_features('Gaziz2', 'Neutral', window_size=window_size),
+        get_emotion_username_features('Matteo', 'Calm', window_size=window_size),
+        get_emotion_username_features('Matteo', 'Excited', window_size=window_size),
+        get_emotion_username_features('James', 'Calm', window_size=window_size),
+        get_emotion_username_features('James', 'Excited', window_size=window_size)[1:, :],
+        get_emotion_username_features('James', 'Neutral', window_size=window_size)[1:, :])
+    return np.vstack(data)
 
 
 if __name__ == '__main__':
